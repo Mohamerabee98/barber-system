@@ -1,0 +1,6 @@
+User  ==> BookingForm (Home)
+Admin ==> AdminLogin and AdminDashboard
+
+global Component ==> 
+      1- Navbar
+      2- Footer
