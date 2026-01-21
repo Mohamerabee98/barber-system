@@ -14,7 +14,26 @@
   font-size: 28px;
   color: #222;
 }
+.delete-all-btn {
+  background-color: rgb(203, 15, 15); 
+  color: #fff;
+  border: none;
+  padding: 6px 12px; 
+  /* margin-bottom: 2px; */
+  border-radius: 8px; 
+  cursor: pointer;
+  font-weight: bold;
+  width: fit-content;
+  font-size: 14px;
+  transition: background 0.3s, transform 0.2s;
+}
 
+.delete-all-btn:hover {
+  background-color: #c0392b; /* أحمر أغمق عند المرور */
+  transform: translateY(-1px);
+}
+
+/* Desktop Table */
 .booking-table {
   width: 100%;
   border-collapse: separate;
@@ -32,7 +51,7 @@
 }
 
 .booking-table th {
-  background: #1abc9c; /* اللون الموحد للأزرار والفورم */
+  background: #1abc9c;
   color: #fff;
   font-weight: 600;
 }
@@ -60,4 +79,53 @@
   background: rgb(170, 23, 23); 
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+/* Mobile Cards */
+.mobile-cards {
+  display: none;
+  margin-top: 20px;
+}
+
+/* Cards style */
+.mobile-cards .card {
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.mobile-cards .card p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.mobile-cards .card button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  background: rgb(203, 15, 15);
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.mobile-cards .card button:hover {
+  background: rgb(170, 23, 23);
+  transform: translateY(-2px);
+}
+
+/* ===== Media Queries ===== */
+@media (max-width: 768px) {
+  .booking-table {
+    display: none; 
+  }
+
+  .mobile-cards {
+    display: block; 
+  }
 }

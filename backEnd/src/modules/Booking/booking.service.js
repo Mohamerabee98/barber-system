@@ -1,66 +1,101 @@
 import mongoose from "mongoose";
 import Booking from "../../db/models/Booking.model.js";
 import { decrypt, encrypt } from "../../../utils/crypto.js";
+import { getIO } from "../../socket/socket.js";
 
-export const createBooking = async (req, res) => {
+/* ================= CREATE BOOKING ================= */
+export const createBooking = async (req, res, next) => {
   try {
-    const { name, age,phone, service, price, day, time } = req.body;
+    const { name, age, phone, service, price, day, time } = req.body;
 
-    if (!name || !age || !phone || !service || !price || !day || !time) {
-      return res.status(400).json({ message: "All fields are required" });
+
+    const count = await Booking.countDocuments({ day, time });
+    if (count >= 5) {
+      return next(new Error("This slot is full", { cause: 400 }));
     }
 
-    const existingBookings = await Booking.find({ day, time });
-    if (existingBookings.length >= 5) {
-      return res.status(400).json({ message: "This slot is full" });
-    }
+    const booking = await Booking.create({
+      name,
+      age,
+      phone: encrypt(phone),
+      service,
+      price,
+      day,
+      time,
+    });
 
-    const encryptedPhone  = encrypt(phone, 10);
-    const booking = await Booking.create({ name, age,phone : encryptedPhone, service, price, day, time });
-    res.status(201).json({ message: "Booking created successfully ", booking });
+    const bookingForAdmin = {
+      ...booking._doc,
+      phone: decrypt(booking.phone),
+    };
+
+    getIO().emit("newBooking", bookingForAdmin);
+
+    res.status(201).json({
+      message: "Booking created successfully",
+      booking: bookingForAdmin,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Create Booking Error:", error);
+    next(error);
   }
 };
 
-
-export const getBookings = async (req, res) => {
+/* ================= GET BOOKINGS ================= */
+export const getBookings = async (req, res, next) => {
   try {
     const bookings = await Booking.find().sort({ day: 1, time: 1 });
+
     const decryptedBookings = bookings.map((booking) => ({
       ...booking._doc,
       phone: decrypt(booking.phone),
     }));
 
-  return  res.json({ bookings: decryptedBookings });
-
+    res.json({ bookings: decryptedBookings });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    next(error);
   }
 };
 
-
-
-export const deleteBooking = async (req, res) => {
+/* ================= DELETE BOOKING ================= */
+export const deleteBooking = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid booking ID" });
+      return next(new Error("Invalid booking ID", { cause: 400 }));
     }
 
     const booking = await Booking.findById(id);
-    if (!booking) return res.status(404).json({ message: "Booking not found" });
-
+    if (!booking) {
+      return next(new Error("Booking not found", { cause: 404 }));
+    }
 
     await Booking.findByIdAndDelete(id);
 
-    res.json({ message: "Booking deleted " });
+    res.json({ message: "Booking deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    next(error);
   }
 };
+// controller/service:
+// export const deleteAllBookings = async (req, res, next) => {
+//   try {
+//     const { confirm } = req.query;
+
+//     if (confirm !== "true") {
+//       return res.status(400).json({
+//         message: "Confirmation required",
+//       });
+//     }
+
+//     await Booking.deleteMany({});
+//     res.status(200).json({
+//       message: "All bookings deleted successfully",
+//     });
+//   } catch (error) {
+//     next(error); 
+//   }
+// };

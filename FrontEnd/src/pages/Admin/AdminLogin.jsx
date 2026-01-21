@@ -13,38 +13,34 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.username.length < 3 || formData.password.length < 6) {
+      Swal.fire("Error", "Invalid username or password format", "error");
+      return;
+    }
+
     try {
-      const { data } = await loginAdmin(formData); // send {username, password}
+      const { data } = await loginAdmin(formData);
+
       localStorage.setItem("adminToken", data.token);
+
       Swal.fire("Success", "Logged in successfully!", "success");
 
-      // تنظيف الفورم بعد تسجيل الدخول
       setFormData({ username: "", password: "" });
 
       navigate("/admin/dashboard");
     } catch (error) {
-      Swal.fire("Error", "Login failed!", "error");
+      Swal.fire(
+        "Error",
+        error.response?.data?.message || "Login failed!",
+        "error"
+      );
     }
   };
 
   return (
     <div className="login-container">
       <h2>Admin Login</h2>
-
-      {/* Hidden fake input trick لمنع المتصفح من ملء القيم تلقائياً */}
-      <input
-        type="text"
-        name="fakeusernameremembered"
-        style={{ display: "none" }}
-        autoComplete="username"
-      />
-      <input
-        type="password"
-        name="fakepasswordremembered"
-        style={{ display: "none" }}
-        autoComplete="new-password"
-      />
-
       <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
         <input
           type="text"
