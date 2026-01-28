@@ -41,6 +41,49 @@ export const createBooking = async (req, res, next) => {
   }
 };
 
+
+export const searchBarberByPhone = async (req, res) => {
+  try {
+    const { phone } = req.query;
+    if (!phone) {
+      return res.status(400).json({ message: "Phone query is required" });
+    }
+
+  const barber = await Booking.findOne({ phone: phone.trim() });
+
+    if (!barber) {
+      return res.status(404).json({ message: "Barber not found" });
+    }
+
+    res.json(barber);
+  } catch (error) {
+    console.error("searchBarberByPhone error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+export const barberArrived = async (req, res) => {
+  try {
+    const barber = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { status: "arrived" },
+      { new: true }
+    );
+
+    if (!barber)
+      return res.status(404).json({ message: "Barber not found" });
+
+    barber.phone = decrypt(barber.phone);
+
+    getIO().emit("barberArrived", barber);
+
+    res.json({ message: "Barber arrived successfully", barber });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 /* ================= GET BOOKINGS ================= */
 export const getBookings = async (req, res, next) => {
   try {

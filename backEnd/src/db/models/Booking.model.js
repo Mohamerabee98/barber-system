@@ -13,7 +13,9 @@ const bookingSchema = new mongoose.Schema(
     },
     phone:{
       type :String,
-      required :true
+      required :true,
+      unique : true
+
     },
 
     service: {
@@ -35,8 +37,13 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       required: true
 
-    }
-  },
+    },
+        status: {
+      type: String,
+      enum: ["pending", "on_way", "arrived"],
+      default: "pending",
+    },
+ },
   {
     timestamps: true
   }

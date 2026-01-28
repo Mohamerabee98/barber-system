@@ -1,3 +1,6 @@
+/* =======================
+   Dashboard Container
+======================= */
 .dashboard-container {
   max-width: 950px;
   margin: 100px auto;
@@ -6,41 +9,40 @@
   border-radius: 15px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   font-family: 'Segoe UI', Tahoma, sans-serif;
+  color: #333;
 }
 
 .dashboard-container h2 {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   font-size: 28px;
   color: #222;
 }
-.delete-all-btn {
-  background-color: rgb(203, 15, 15); 
+
+/* =======================
+   Total Bookings Badge
+======================= */
+.dashboard-container p span {
+  background-color: #1abc9c;
   color: #fff;
-  border: none;
-  padding: 6px 12px; 
-  /* margin-bottom: 2px; */
-  border-radius: 8px; 
-  cursor: pointer;
-  font-weight: bold;
-  width: fit-content;
+  padding: 3px 10px;
+  border-radius: 12px;
   font-size: 14px;
-  transition: background 0.3s, transform 0.2s;
+  font-weight: bold;
 }
 
-.delete-all-btn:hover {
-  background-color: #c0392b; /* أحمر أغمق عند المرور */
-  transform: translateY(-1px);
-}
 
-/* Desktop Table */
+
+/* =======================
+   Desktop Table
+======================= */
 .booking-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .booking-table th,
@@ -57,43 +59,66 @@
 }
 
 .booking-table tr:nth-child(even) {
-  background: #f9f9f9;
+  /* background: #f9f9f9; */
+  background: #f3f0f0;
 }
 
 .booking-table tr:nth-child(odd) {
   background: #ffffff;
 }
 
+/* Buttons inside table */
 .booking-table td button {
   padding: 6px 12px;
-  background: rgb(203, 15, 15); 
   color: #fff;
   font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+  transition: all 0.3s ease;
 }
 
-.booking-table td button:hover {
-  background: rgb(170, 23, 23); 
+.booking-table td button:first-child {
+  background-color: #27ae60; /* Arrived */
+  margin-right: 5px;
+}
+
+.booking-table td button:first-child:hover {
+  background-color: #219150;
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* Mobile Cards */
+.booking-table td button:last-child {
+  background-color: #e74c3c; /* Delete */
+}
+
+.booking-table td button:last-child:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* =======================
+   Mobile Cards
+======================= */
 .mobile-cards {
   display: none;
   margin-top: 20px;
 }
 
-/* Cards style */
 .mobile-cards .card {
   background: #fff;
-  padding: 15px;
+  padding: 18px 15px;
   margin-bottom: 15px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mobile-cards .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
 }
 
 .mobile-cards .card p {
@@ -105,27 +130,42 @@
   margin-top: 10px;
   width: 100%;
   padding: 8px;
-  background: rgb(203, 15, 15);
-  color: #fff;
   font-weight: bold;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  transition: all 0.3s ease;
 }
 
-.mobile-cards .card button:hover {
-  background: rgb(170, 23, 23);
+.mobile-cards .card button:first-child {
+  background-color: #27ae60; 
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.mobile-cards .card button:first-child:hover {
+  background-color: #219150;
   transform: translateY(-2px);
 }
 
-/* ===== Media Queries ===== */
+.mobile-cards .card button:last-child {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.mobile-cards .card button:last-child:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+}
+
+/* =======================
+   Media Queries
+======================= */
 @media (max-width: 768px) {
   .booking-table {
-    display: none; 
+    display: none; /* Hide table on mobile */
   }
-
   .mobile-cards {
-    display: block; 
+    display: block; /* Show cards on mobile */
   }
 }

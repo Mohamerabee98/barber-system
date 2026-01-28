@@ -7,18 +7,21 @@ import { errorHandler } from "./utils/Error/error.handling.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
-// bootstrap
-bootstrap(app, express);
-
 // create http server
 const server = http.createServer(app);
 
 // init socket
-initSocket(server);
+const io = initSocket(server);
+
+// bootstrap routes & DB
+bootstrap(app, express);
 
 // error handling
-app.use(errorHandler)
+app.use(errorHandler);
+
 // listen
 server.listen(port, () => {
-  console.log("server is running on port", port);
+  console.log(`Server running on port ${port}`);
 });
+
+export { io };

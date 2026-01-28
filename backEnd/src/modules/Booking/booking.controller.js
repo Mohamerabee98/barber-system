@@ -3,6 +3,8 @@ import {
   createBooking,
   getBookings,
   deleteBooking,
+  searchBarberByPhone,
+  barberArrived,
 
 } from "./booking.service.js";
 import { authenticate } from "../../middleware/auth.middleware.js";
@@ -32,7 +34,16 @@ router.get(
 /* ================= DELETE BOOKING ================= */
 
 router.delete("/:id", authenticate, authorize("admin"), deleteBooking);
-// router.delete("/delete-all",authenticate, authorize("admin"), deleteAllBookings);
 
+router.get("/search",authenticate,
+  authorize("admin"), searchBarberByPhone);
+
+
+router.patch(
+  "/arrived/:id",
+  authenticate,
+  authorize("admin"),
+  barberArrived
+);
 
 export default router;

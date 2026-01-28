@@ -2,14 +2,19 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { getBookings, deleteBooking } from "../../utils/api.js"; // تأكد إنك عملت API function للـ deleteAllBookings
+import {
+  getBookings,
+  deleteBooking,
+  barberArrived,
+} from "../../utils/api.js"; 
 import "./Css/dashboard.css";
 import { Helmet } from "react-helmet-async";
 
-const socket = io("http://localhost:3000");
+const socket = io("http://localhost:3000"); 
 
 const AdminDashboard = () => {
   const [bookings, setBookings] = useState([]);
+  const [searchPhone, setSearchPhone] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("adminToken");
 
@@ -60,32 +65,24 @@ const AdminDashboard = () => {
     }
   };
 
-  // const handleDeleteAll = async () => {
-  //   const result = await Swal.fire({
-  //     title: "Are you sure?",
-  //     text: "This will delete ALL bookings permanently!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#d33",
-  //     cancelButtonColor: "#3085d6",
-  //     confirmButtonText: "Yes, delete all!",
-  //     cancelButtonText: "Cancel",
-  //   });
 
-  //   if (result.isConfirmed) {
-  //     try {
-  //       await deleteAllBookings(token); 
-  //       setBookings([]);
-  //       Swal.fire("Deleted!", "All bookings have been deleted.", "success");
-  //     } catch (error) {
-  //       Swal.fire(
-  //         "Error",
-  //         error.response?.data?.message || "Failed to delete all bookings!",
-  //         "error"
-  //       );
-  //     }
-  //   }
-  // };
+
+
+  const handleArrived = async (id) => {
+    try {
+      const { data } = await barberArrived(id, token);
+      setBookings((prev) =>
+        prev.map((b) => (b._id === id ? data.barber : b))
+      );
+      Swal.fire("Success", "Barber marked as arrived!", "success");
+    } catch (error) {
+      Swal.fire(
+        "Error",
+        error.response?.data?.message || "Failed to update status",
+        "error"
+      );
+    }
+  };
 
   // socket.io for real-time updates
   useEffect(() => {
@@ -104,8 +101,19 @@ const AdminDashboard = () => {
       });
     };
 
+    const handleBarberArrived = (updatedBooking) => {
+      setBookings((prev) =>
+        prev.map((b) => (b._id === updatedBooking._id ? updatedBooking : b))
+      );
+    };
+
     socket.on("newBooking", handleNewBooking);
-    return () => socket.off("newBooking", handleNewBooking);
+    socket.on("barberArrived", handleBarberArrived);
+
+    return () => {
+      socket.off("newBooking", handleNewBooking);
+      socket.off("barberArrived", handleBarberArrived);
+    };
   }, []);
 
   return (
@@ -115,46 +123,23 @@ const AdminDashboard = () => {
           <title>Admin Dashboard</title>
         </Helmet>
         <h2>Admin Dashboard</h2>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "10px",
-          }}
-        >
-          <p style={{ fontWeight: "bold", color: "#555", margin: 0 }}>
-            Total Bookings:{" "}
-            <span
-              style={{
-                backgroundColor: "#1abc9c",
-                color: "#fff",
-                padding: "3px 8px",
-                borderRadius: "12px",
-                fontSize: "14px",
-              }}
-            >
-              {bookings.length}
-            </span>
-          </p>
 
-          {/* {bookings.length > 0 && (
-            <button
-              className="delete-all-btn"
-              onClick={handleDeleteAll}
-              style={{
-                backgroundColor: "#e74c3c",
-                color: "#fff",
-                padding: "5px 12px",
-                borderRadius: "6px",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Delete All
-            </button>
-          )} */}
-        </div>
+   
+
+        <p style={{ fontWeight: "bold", color: "#555", marginBottom: "10px" }}>
+          Total Bookings:{" "}
+          <span
+            style={{
+              backgroundColor: "#1abc9c",
+              color: "#fff",
+              padding: "3px 8px",
+              borderRadius: "12px",
+              fontSize: "14px",
+            }}
+          >
+            {bookings.length}
+          </span>
+        </p>
       </div>
 
       {/* Desktop Table */}
@@ -168,6 +153,7 @@ const AdminDashboard = () => {
             <th>Price</th>
             <th>Day</th>
             <th>Time</th>
+            <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -182,7 +168,23 @@ const AdminDashboard = () => {
                 <td>{b.price} EGP</td>
                 <td>{b.day}</td>
                 <td>{b.time}</td>
+                <td>{b.status || "pending"}</td>
                 <td>
+                  <button
+                    onClick={() => handleArrived(b._id)}
+                    style={{
+                      backgroundColor: "#27ae60",
+                      color: "#fff",
+                      padding: "3px 8px",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      marginBottom : "10px",
+                      marginRight: "5px",
+                    }}
+                  >
+                    Arrived
+                  </button>
                   <button
                     onClick={() => handleDelete(b._id)}
                     style={{
@@ -201,7 +203,7 @@ const AdminDashboard = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="8" style={{ textAlign: "center" }}>
+              <td colSpan="9" style={{ textAlign: "center" }}>
                 No bookings found
               </td>
             </tr>
@@ -235,6 +237,10 @@ const AdminDashboard = () => {
               <p>
                 <strong>Time:</strong> {b.time}
               </p>
+              <p>
+                <strong>Status:</strong> {b.status || "pending"}
+              </p>
+              <button onClick={() => handleArrived(b._id)}>Arrived</button>
               <button onClick={() => handleDelete(b._id)}>Delete</button>
             </div>
           ))
